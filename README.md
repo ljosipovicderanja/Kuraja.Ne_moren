@@ -2,6 +2,8 @@
 
 ## Link na rješenje zadatka
 
+https://kuraja-ne-moren.herokuapp.com/
+
 ## Zadatak
 
 Voditelj ste turističke agencije koja se bavi posredovanjem u pružanju usluga
