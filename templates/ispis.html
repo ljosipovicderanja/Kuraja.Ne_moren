@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Kuraja.Ne moren</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDl7Aa5cSlOtX4hv0ZMJIf7pbObbw5dAVI&map_ids=df1431704b187788&callback=initMap&libraries=&v=weekly"
+        defer></script>
+
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 8px;
+        }
+
+        .details {
+            background-color: #c8b4cf;
+            font-weight: bolder;
+        }
+
+        tr {
+            text-align: center;
+            background-color: #fffdfd;
+        }
+
+        th {
+            background-color: rgba(97, 19, 107, 0.77);
+            color: white;
+            text-align: center;
+        }
+
+        .navbar {
+        background-color: rgb(97, 19, 107, 0.77);
+            justify-content: left;
+            text-align: left;
+        }
+        h1 {color:rgb(253, 253, 253)} 
+
+        #map {
+            height: 518px;
+            width: 500px;
+        }
+
+        html,
+        body {
+            font-family: 'Georgia (serif)';
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color:rgb(236, 171, 221) ;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-light">
+        <span class="navbar-brand mb-0">
+            <h1>Kuraja.Ne moren</h1>
+        </span>
+    </nav>
+    <br />
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <p>
+                <div id="map"></div>
+                </p>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="table">
+                    <h2>Rezultat :</h2>
+                    <!---Table---------------------------------------------------->
+                    <table>
+                        <tr>
+                            <th style="text-align: left;">Opis usluge</th>
+                            <th>Količina</th>
+                            <th>Jedinična cijena</th>
+                            <th>Ukupno (kn)</th>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Transfer od zračne luke do smještaja</td>
+                            <td>2</td>
+                            <td>{{dict_rjesenja["cijena_prijevoza"]}}</td>
+                            <td>{{dict_rjesenja["cijena_prijevoza"]*2}}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Smještaj u {{dict_rjesenja["naziv_smjestaja"]}}</td>
+                            <td>{{ljudi}}</td>
+                            <td>{{dict_rjesenja["cijena_nocenje"]}}</td>
+                            <td>{{dict_rjesenja["cijena_nocenje"]*ljudi}}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Transfer za izlet</td>
+                            <td>1</td>
+                            <td>{{dict_rjesenja["cijena_prijevoza_izlet"]}}</td>
+                            <td>{{dict_rjesenja["cijena_prijevoza_izlet"]}}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Vodič</td>
+                            <td>8</td>
+                            <td>50</td>
+                            <td>400</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">Degustacija {{dict_rjesenja["deg_naziv"]}}</td>
+                            <td>{{ljudi}}</td>
+                            <td>{{dict_rjesenja["deg_cijena"]}}</td>
+                            <td>{{dict_rjesenja["deg_cijena"]*ljudi}}</td>
+                        </tr>
+                        <tr>
+                            <td class="details" style="text-align: left;">Ukupni troškovi</td>
+                            <td class="details"></td>
+                            <td class="details"></td>
+                            <td class="details">{{ukupni_troskovi}}</td>
+                        </tr>
+                        <tr>
+                            <td class="details" style="text-align: left;">Marža 15%</td>
+                            <td class="details"></td>
+                            <td class="details"></td>
+                            <td class="details">{{marza}}</td>
+                        </tr>
+                        <tr>
+                            <td class="details" style="text-align: left;">PRODAJNA CIJENA ARANŽMANA</td>
+                            <td class="details"></td>
+                            <td class="details"></td>
+                            <td class="details">{{prodajna_cijena}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container mt-4 pb-3">
+        <h3>Jednodnevni izlet</h3>
+        <h6><strong>Dan 1</strong></h6>
+        <p>Sastanak turista ispred zračne luke Pula u 8:00. Transfer je organiziran u vozilima:</p>
+        <ul>
+            {% for key,value in dict_rjesenja["vozila"].items() %}
+            <li>{{value}} x {{key}}</li> {% endfor %}
+        </ul>
+        <p>Nakon ukrcaja u vozilo/a, kreće polazak prema {{dict_rjesenja["naziv_smjestaja"]}}. Po dolasku u smještaj
+            turisti obavljaju check-in i smještaju se u svoje sobe. Nakon prijave svih gostiju i smještaja istih u sobe,
+            slobodno vrijeme za razgledavanje
+            grada.
+        </p>
+        <h6><strong>Dan 2</strong></h6>
+        <p>Polazak na jednodnevni izlet u 9:00. Tokom izleta razgledat će se gradovi: {% for i in
+            dict_rjesenja["izlet_gradovi"] %} {{i}}{% if dict_rjesenja["izlet_gradovi"].index(i) != 4 %},
+            {%endif%}{%endfor%}. U izlet je uključena i degustacija {{dict_rjesenja["deg_naziv"].lower()}}
+            u gradu {{dict_rjesenja["deg_grad"]}}.
+            </br>
+        </p>
+        <h3>Cijena po osobi: {{po_osobi}} kn</h3>
+    </div>
+    </div>
+</body>
+
+</html>
+<script>
+    let map;
+
+    function initMap() {
+        const pula = {
+            lat: 44.869441,
+            lng: 13.854558
+        }
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: {
+                lat: 45.15,
+                lng: 13.90
+            },
+            zoom: 9,
+            mapId: "df1431704b187788",
+            mapTypeControl: false
+
+        })
+
+
+
+        //------------------AERODROM-----------------
+
+        //slika
+
+        const aerodrom = '/static/aerodrom10.png'
+
+        //info window
+        const aerodromInfo = new google.maps.InfoWindow({
+            content: '<div id="content"><h5>Pulski aerodrom</h5></div>'
+        });
+
+        //marker
+        const aerodromMarker = new google.maps.Marker({
+            position: {
+                lat: 44.89922,
+                lng: 13.92308
+            },
+            map,
+            icon: aerodrom
+        });
+
+        aerodromMarker.addListener("click", () => {
+            aerodromInfo.open(map, aerodromMarker);
+        });
+
+        const smjestaji = [{
+            position: new google.maps.LatLng(45.44067314627891, 13.53205299795035),
+            properties: {
+                name: "Apartmani Maric"
+            },
+        }, {
+            position: new google.maps.LatLng(45.44451495734213, 13.513205973617847),
+            properties: {
+                name: "Hotel Sol"
+            },
+        }, {
+            position: new google.maps.LatLng(45.43816847950842, 13.525377048158232),
+            properties: {
+                name: "Hotel Adriatic"
+            },
+        }, {
+            position: new google.maps.LatLng(45.23110492400958, 13.605705150311199),
+            properties: {
+                name: "Apartmani Opatic"
+            },
+        }, {
+            position: new google.maps.LatLng(45.224292469523974, 13.597043211434995),
+            properties: {
+                name: "Hotel Porec"
+            },
+        }, {
+            position: new google.maps.LatLng(44.8341243912004, 13.833838759989913),
+            properties: {
+                name: "Hotel Histria"
+            },
+        }, {
+            position: new google.maps.LatLng(44.874621051762425, 13.864315297930222),
+            properties: {
+                name: "Apartmani Maris"
+            },
+        }, {
+            position: new google.maps.LatLng(45.235386734345816, 13.92804045556552),
+            properties: {
+                name: "Apartmani Diana"
+            },
+        }, {
+            position: new google.maps.LatLng(45.17701047935155, 13.90092105561273),
+            properties: {
+                name: "Apartmani Borna"
+            },
+        },]
+
+        const gradovi = [{
+            position: new google.maps.LatLng(45.435099032839155, 13.516478924463406),
+            properties: {
+                name: "Umag"
+            },
+        }, {
+            position: new google.maps.LatLng(45.38010593857335, 13.722922725047118),
+            properties: {
+                name: "Groznjan"
+            },
+        }, {
+            position: new google.maps.LatLng(45.3388419653472, 13.82842406343547),
+            properties: {
+                name: "Motovun"
+            },
+        }, {
+            position: new google.maps.LatLng(45.27763952515149, 13.721491884957757),
+            properties: {
+                name: "Visnjan"
+            },
+        }, {
+            position: new google.maps.LatLng(45.3255418795907, 13.557400615913444),
+            properties: {
+                name: "Novigrad"
+            },
+        }, {
+            position: new google.maps.LatLng(45.40968136329559, 13.966635768388766),
+            properties: {
+                name: "Buzet"
+            },
+        }, {
+            position: new google.maps.LatLng(45.23071652858854, 13.593107814370514),
+            properties: {
+                name: "Porec"
+            },
+        }, {
+            position: new google.maps.LatLng(45.18359248927548, 13.86474336206749),
+            properties: {
+                name: "Sveti Petar u Sumi"
+            },
+        }, {
+            position: new google.maps.LatLng(45.13082815859892, 13.629152327306793),
+            properties: {
+                name: "Limski kanal"
+            },
+        }, {
+            position: new google.maps.LatLng(45.15157304463853, 13.605500557943637),
+            properties: {
+                name: "Vrsar"
+            },
+        }, {
+            position: new google.maps.LatLng(45.08242247252611, 13.634160481979377),
+            properties: {
+                name: "Rovinj"
+            },
+        }, {
+            position: new google.maps.LatLng(45.14567660352068, 13.90321392347839),
+            properties: {
+                name: "Zminj"
+            },
+        }, {
+            position: new google.maps.LatLng(45.219250182631065, 13.842103067332822),
+            properties: {
+                name: "Tinjan"
+            },
+        }, {
+            position: new google.maps.LatLng(45.315057708620046, 13.849250601891725),
+            properties: {
+                name: "Kaldir"
+            },
+        }, {
+            position: new google.maps.LatLng(45.24118642098844, 13.930729163061311),
+            properties: {
+                name: "Pazin"
+            },
+        }, {
+            position: new google.maps.LatLng(44.97100110478006, 13.845442899905935),
+            properties: {
+                name: "Vodnjan"
+            },
+        }, {
+            position: new google.maps.LatLng(45.000557688419725, 13.724373001051655),
+            properties: {
+                name: "Bale"
+            },
+        }, {
+            position: new google.maps.LatLng(44.925045836517995, 13.801509612614229),
+            properties: {
+                name: "Fazana"
+            },
+        }, {
+            position: new google.maps.LatLng(44.83781141712609, 13.84602337908532),
+            properties: {
+                name: "Pjescana uvala"
+            },
+        }, {
+            position: new google.maps.LatLng(44.80267605164258, 13.909662102862978),
+            properties: {
+                name: "Premantura"
+            },
+        }, {
+            position: new google.maps.LatLng(44.82424752121107, 13.932798383354324),
+            properties: {
+                name: "Medulin"
+            },
+        }, {
+            position: new google.maps.LatLng(44.90291677029074, 13.957367933308376),
+            properties: {
+                name: "Valtura"
+            },
+        }, {
+            position: new google.maps.LatLng(45.06574728874322, 14.023735215290174),
+            properties: {
+                name: "Barban"
+            },
+        }, {
+            position: new google.maps.LatLng(45.08696497040728, 14.123442637269235),
+            properties: {
+                name: "Labin"
+            },
+        }, {
+            position: new google.maps.LatLng(45.36819593865938, 14.015749927092687),
+            properties: {
+                name: "Kotli"
+            },
+        }, {
+            position: new google.maps.LatLng(45.350507462928284, 14.034459635073619),
+            properties: {
+                name: "Hum"
+            },
+        }, {
+            position: new google.maps.LatLng(44.86556118307976, 13.846684130012617),
+            properties: {
+                name: "Pula"
+            },
+        }]
+
+
+        const degustacije = [{
+            position: new google.maps.LatLng(45.34847205010958, 14.050581298159063),
+            properties: {
+                name: "Hum"
+            },
+        }, {
+            position: new google.maps.LatLng(45.33093374732359, 13.825623358995784),
+            properties: {
+                name: "Motovun"
+            },
+        }, {
+            position: new google.maps.LatLng(44.96142233379214, 13.855745253638734),
+            properties: {
+                name: "Vodnjan"
+            },
+        }, {
+            position: new google.maps.LatLng(45.07955502095741, 13.675384711442742),
+            properties: {
+                name: "Rovinj"
+            },
+        }, {
+            position: new google.maps.LatLng(45.32584553107082, 13.564388454209748),
+            properties: {
+                name: "Novigrad"
+            },
+        }, {
+            position: new google.maps.LatLng(44.78671804534536, 13.91005561681746),
+            properties: {
+                name: "Premantura"
+            },
+        }, {
+            position: new google.maps.LatLng(44.85218842702907, 13.859961130502793),
+            properties: {
+                name: "Pula"
+            },
+        }, {
+            position: new google.maps.LatLng(45.27684501097314, 13.720454419858063),
+            properties: {
+                name: "Visnjan"
+            },
+        }, {
+            position: new google.maps.LatLng(45.143602870188346, 13.909706216617588),
+            properties: {
+                name: "Zminj"
+            },
+        }, {
+            position: new google.maps.LatLng(45.187152903280534, 13.856910747250502),
+            properties: {
+                name: "Sveti Petar u Sumi"
+            },
+        },]
+
+        //----------------------SMJEŠTAJ------------------
+
+        //slika
+        const smjestaj = '/static/smjestaj10.png';
+
+        //info window
+        const smjestajInfo = new google.maps.InfoWindow({
+            content: '<div id="content"><h5>{{dict_rjesenja["naziv_smjestaja"]}}</h5><p>Grad: {{dict_rjesenja["grad_smjestaja"]}}</p></div>'
+        });
+
+        //marker
+
+        const smjestaj_naziv = '{{dict_rjesenja["naziv_smjestaja"]}}';
+        const smjestaj_grad = '{{dict_rjesenja["grad_smjestaja"]}}';
+
+        for (let i = 0; i < smjestaji.length; i++) {
+            if (smjestaji[i]["properties"]["name"] == smjestaj_naziv) {
+                var smjestajMarker = new google.maps.Marker({
+                    position: smjestaji[i].position,
+                    icon: smjestaj,
+                    map: map,
+                });
+            };
+        };
+
+        smjestajMarker.addListener("click", () => {
+
+            smjestajInfo.open(map, smjestajMarker);
+        });
+
+        //----------------------DEGUSTACIJA-----------------
+
+        //slika
+        const degustacija = '/static/degustacija10.png';
+
+        //info window
+        const degustacijaInfo = new google.maps.InfoWindow({
+            content: '<div id="content"><h5>Degustacija</h5><p>{{dict_rjesenja["deg_naziv"]}}</p></div>'
+        });
+
+        //marker
+
+        const deg_grad = '{{dict_rjesenja["deg_grad"]}}'
+
+
+        for (let i = 0; i < degustacije.length; i++) {
+            if (degustacije[i]["properties"]["name"] == deg_grad) {
+                var degustacijaMarker = new google.maps.Marker({
+                    position: degustacije[i].position,
+                    icon: degustacija,
+                    map: map,
+                });
+            }
+        }
+
+
+
+
+        degustacijaMarker.addListener("click", () => {
+            degustacijaInfo.open(map, degustacijaMarker);
+        });
+
+
+        //----------------------------------IZLETI-------------------
+
+        //slika
+        const izlet_grad = '/static/target_3.png';
+
+
+        //info window
+        const gradInfo = new google.maps.InfoWindow({
+            content: '<div id="content"><h5>hmm</h5><p>{{dict_rjesenja["deg_naziv"]}}</p></div>'
+        });
+
+        //marker
+
+        var pom = '{% for i in dict_rjesenja["izlet_gradovi"] %}{{i}}{%endfor%}'
+        var izlet_gradovi = pom.match(/[A-Z][a-z]+/g);
+
+
+
+        for (let i = 0; i < gradovi.length; i++) {
+            for (let j = 0; j < izlet_gradovi.length; j++) {
+                if (gradovi[i]["properties"]["name"] == izlet_gradovi[j] && izlet_gradovi[j] != smjestaj_grad && izlet_gradovi[j] != deg_grad) {
+                    var gradMarker = new google.maps.Marker({
+                        position: gradovi[i].position,
+                        icon: izlet_grad,
+                        map: map,
+                    });
+                }
+            }
+        };
+
+        /*gradMarker.addListener("click", () => {
+            gradInfo.open(map, gradMarker);
+        });*/
+
+
+    };
+</script>
